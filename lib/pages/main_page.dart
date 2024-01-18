@@ -1,20 +1,20 @@
 //import 'dart:html';
 
 import 'package:flutter/material.dart';
-import 'package:imc_app2/models/pessoa_model.dart';
+import 'package:imc_app2/models/registro_model.dart';
 import 'package:imc_app2/repository/registros_repository.dart';
 
 class MainPage extends StatefulWidget {
-  Pessoa inPessoa;
-  MainPage({super.key, required this.inPessoa});
+  final RegistroModel inPessoa;
+  const MainPage({super.key, required this.inPessoa});
 
   @override
   State<MainPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<MainPage> {
-  var registrosRepository = RegistrosRepository();
-  var resgistro = RegistrosRepository().listarRegistros();
+  RegistrosRepository registrosRepository = RegistrosRepository();
+  var registros = const <RegistroModel>[];
 
   ///** CONTROLLERS **///
   var pesoController = TextEditingController();
@@ -24,14 +24,29 @@ class _LoginPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    registrosRepository.adicionar(widget.inPessoa);
+    obterRegistros();
+  }
+
+  void obterRegistros() async {
+    await registrosRepository.salvar(widget.inPessoa);
+    registros = await registrosRepository.obterDados();
+    setState(() {});
+  }
+
+  void atualizarRegistros() async {
+    registros = await registrosRepository.obterDados();
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    var registros = registrosRepository.listarRegistros();
+    //var registros = registrosRepository.listarRegistros();
     var nome = registros.isNotEmpty ? registros[0].nome : "Sem Nome";
-    var altura = registros.isNotEmpty ? registros[0].altura : 1.0;
+    //var nome =
+    //    widget.inPessoa.nome.isNotEmpty ? widget.inPessoa.nome : "Sem Nome";
+    double altura = registros.isNotEmpty ? registros[0].altura : 1;
+    //double altura = widget.inPessoa.altura.isNaN ? 1 : widget.inPessoa.altura;
+    //altura = altura / 100;
     var imcIdeal = (25 * (altura * altura)).round();
 
     return SafeArea(
@@ -59,12 +74,14 @@ class _LoginPageState extends State<MainPage> {
                           ),
                           TextButton(
                             onPressed: () {
-                              registrosRepository.adicionar(Pessoa(
+                              registrosRepository.salvar(RegistroModel(
+                                0,
                                 nome,
                                 altura,
-                                double.parse(pesoController.text),
+                                int.parse(pesoController.text),
                               ));
                               pesoController.text = "";
+                              atualizarRegistros();
                               setState(() {});
                               Navigator.pop(context);
                             },
@@ -144,7 +161,7 @@ class _LoginPageState extends State<MainPage> {
                       /// IMC ///
                       if (imc <= 18.5) {
                         return ListTile(
-                            key: Key(registro.id),
+                            key: Key(registro.id.toString()),
                             leading:
                                 const Icon(Icons.person, color: Colors.white),
                             title: Text(
@@ -169,7 +186,7 @@ class _LoginPageState extends State<MainPage> {
 //                        //
                       } else if (imc > 18.5 && imc < 25) {
                         return ListTile(
-                            key: Key(registro.id),
+                            key: Key(registro.id.toString()),
                             leading:
                                 const Icon(Icons.person, color: Colors.white),
                             title: Text(
@@ -181,7 +198,7 @@ class _LoginPageState extends State<MainPage> {
                               ),
                             ),
                             subtitle: const Text(
-                              "Peso Adeuqado",
+                              "Peso Adequado",
                               style:
                                   TextStyle(fontSize: 14, color: Colors.white),
                             ),
@@ -192,7 +209,7 @@ class _LoginPageState extends State<MainPage> {
 //                        //
                       } else if (imc >= 25 && imc < 30) {
                         return ListTile(
-                            key: Key(registro.id),
+                            key: Key(registro.id.toString()),
                             leading:
                                 const Icon(Icons.person, color: Colors.white),
                             title: Text(
@@ -217,7 +234,7 @@ class _LoginPageState extends State<MainPage> {
 //                        //
                       } else if (imc >= 30 && imc < 35) {
                         return ListTile(
-                            key: Key(registro.id),
+                            key: Key(registro.id.toString()),
                             leading:
                                 const Icon(Icons.person, color: Colors.white),
                             title: Text(
@@ -242,7 +259,7 @@ class _LoginPageState extends State<MainPage> {
 //
                       } else if (imc >= 35 && imc < 40) {
                         return ListTile(
-                            key: Key(registro.id),
+                            key: Key(registro.id.toString()),
                             leading:
                                 const Icon(Icons.person, color: Colors.white),
                             title: Text(
@@ -267,7 +284,7 @@ class _LoginPageState extends State<MainPage> {
 //
                       } else if (imc >= 40) {
                         return ListTile(
-                            key: Key(registro.id),
+                            key: Key(registro.id.toString()),
                             leading:
                                 const Icon(Icons.person, color: Colors.white),
                             title: Text(

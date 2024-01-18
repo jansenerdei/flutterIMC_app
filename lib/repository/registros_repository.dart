@@ -1,21 +1,41 @@
-import 'package:imc_app2/models/pessoa_model.dart';
+import 'package:imc_app2/models/registro_model.dart';
+import 'package:imc_app2/repository/sqlite_database.dart';
 
 class RegistrosRepository {
-  final List<Pessoa> _registros = [];
-
-  void adicionar(Pessoa pessoa) {
-    _registros.add(pessoa);
+  Future<List<RegistroModel>> obterDados() async {
+    List<RegistroModel> registros = [];
+    var db = await SQLiteDataBase().obterDataBase();
+    var result = await db.rawQuery('SELECT id, nome, altura, peso FROM pessoa');
+    for (var i in result) {
+      registros.add(RegistroModel(
+          int.parse(i["id"].toString()),
+          i["nome"].toString(),
+          double.parse(i["altura"].toString()),
+          int.parse(i["peso"].toString())));
+    }
+    return registros;
   }
 
-  void alterar(String id, double peso) {
-    _registros.where((pessoa) => pessoa.id == id).first.peso = peso;
+  Future<void> salvar(RegistroModel pessoa) async {
+    var db = await SQLiteDataBase().obterDataBase();
+    await db.rawInsert('INSERT INTO pessoa (nome, altura, peso) values (?,?,?)',
+        [pessoa.nome, pessoa.altura, pessoa.peso]);
   }
 
-  void remove(String id) {
-    _registros.remove(_registros.where((pessoa) => pessoa.id == id).first);
+  Future<void> alterar(RegistroModel pessoa) async {
+    var db = await SQLiteDataBase().obterDataBase();
+    await db.rawUpdate(
+        'UPDATE pessoa nome = ?, altura = ?, peso =? WHERE id = ?',
+        [pessoa.nome, pessoa.altura, pessoa.peso, pessoa.id]);
   }
 
-  List<Pessoa> listarRegistros() {
-    return _registros;
+  Future<void> remover(int id) async {
+    var db = await SQLiteDataBase().obterDataBase();
+    await db.rawDelete('DELETE FROM pessoa WHERE id = ?', [id]);
+  }
+
+  Future<void> resetTotal() async {
+    var db = await SQLiteDataBase().obterDataBase();
+    await db.rawDelete('DELETE FROM pessoa');
   }
 }

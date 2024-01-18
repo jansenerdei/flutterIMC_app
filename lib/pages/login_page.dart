@@ -1,7 +1,7 @@
 //import 'dart:html';
 
 import 'package:flutter/material.dart';
-import 'package:imc_app2/models/pessoa_model.dart';
+import 'package:imc_app2/models/registro_model.dart';
 import 'package:imc_app2/pages/main_page.dart';
 import 'package:imc_app2/repository/registros_repository.dart';
 
@@ -14,7 +14,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   var registrosRepository = RegistrosRepository();
-  var pessoaModel = RegistrosRepository().listarRegistros();
+  var pessoaModel = RegistrosRepository().obterDados();
 
   ///** CONTROLLERS **///
   var pesoController = TextEditingController();
@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   var alturaController = TextEditingController();
 
   ///** VARIAVEIS **///
-  var registro = <Pessoa>[];
+  var registro = <RegistroModel>[];
 
   @override
   void initState() {
@@ -154,10 +154,11 @@ class _LoginPageState extends State<LoginPage> {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("Preencha a sua altura!")));
                 } else {
-                  var pes = Pessoa(
+                  var pes = RegistroModel(
+                    0,
                     nomeController.text,
                     double.parse(alturaController.text),
-                    double.parse(pesoController.text),
+                    int.parse(pesoController.text),
                   );
 
                   Navigator.push(
@@ -170,6 +171,30 @@ class _LoginPageState extends State<LoginPage> {
               },
               child: const Text(
                 "Acessar",
+                style: TextStyle(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+
+          Container(
+            alignment: Alignment.center,
+            child: TextButton(
+              style: ButtonStyle(
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10))),
+                  backgroundColor: MaterialStateProperty.all(Colors.purple)),
+              onPressed: () {
+                registrosRepository.resetTotal();
+              },
+              child: const Text(
+                "RESETAR",
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.white,
